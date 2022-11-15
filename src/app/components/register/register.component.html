@@ -1,0 +1,31 @@
+<div class="login-wrapper" fxLayout="row" fxLayoutAlign="center center">
+  <mat-card class="box">
+    <mat-card-header>
+      <mat-card-title>Register</mat-card-title>
+    </mat-card-header>
+    <form class="example-form" action="#" th:action="@{/register}" th:object="${userData}" method="post">
+      <mat-card-content>
+        <mat-form-field class="example-full-width">
+          <input matInput placeholder="First name" [(ngModel)]="user.firstName" name="firstName">
+        </mat-form-field>
+        <mat-form-field class="example-full-width">
+          <input matInput placeholder="Last name" [(ngModel)]="user.lastName" name="lastName">
+        </mat-form-field>
+        <mat-form-field class="example-full-width">
+          <input matInput placeholder="Email" [(ngModel)]="user.email" name="email">
+        </mat-form-field>
+        <mat-form-field class="example-full-width">
+          <input matInput placeholder="Password" [(ngModel)]="user.password" name="password">
+        </mat-form-field>
+        <mat-form-field class="example-full-width">
+          <mat-label>Choose a role...</mat-label>
+          <mat-select>
+            <mat-option [value]="roles" *ngFor="let roles of Roles">{{roles}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </mat-card-content>
+      <button mat-stroked-button color="accent" class="btn-block" (click)="addPerson()">Register</button>
+    </form>
+  </mat-card>
+</div>
