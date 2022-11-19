@@ -3,6 +3,8 @@ import { User } from './user';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from "rxjs/operators";
+import { threadId } from 'worker_threads';
+
  
 @Injectable({providedIn:'root'})
 export class AppService {
@@ -38,13 +40,13 @@ export class AppService {
   }
 
   isUserLoggedIn() {
-    let user = sessionStorage.getItem("username");
+    let user = sessionStorage.getItem("email");
     console.log(!(user === null));
     return !(user === null);
   }
 
   logOut() {
-    sessionStorage.removeItem("username");
+    sessionStorage.removeItem("email");
   }
  
 }

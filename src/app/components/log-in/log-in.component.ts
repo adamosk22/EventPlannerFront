@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {User} from 'C:/Users/aadam/Documents/Praca inżynierska/EventPlannerFrontend/src/app/user';
 import { AppService } from 'C:/Users/aadam/Documents/Praca inżynierska/EventPlannerFrontend/src/app/app.service';
+import {Router} from '@angular/router'
 
 @Component({
   selector: 'app-log-in',
@@ -9,7 +10,7 @@ import { AppService } from 'C:/Users/aadam/Documents/Praca inżynierska/EventPla
 })
 export class LogInComponent implements OnInit {
 
-  constructor(private appService:AppService) { }
+  constructor(private appService:AppService, private router:Router) { }
 
   ngOnInit(): void {
   }
@@ -20,7 +21,10 @@ export class LogInComponent implements OnInit {
     this.appService.authenticate(email, password)
       .subscribe(data => {
         console.log(data);
-      })      
+      })
+      if(this.appService.isUserLoggedIn()){
+        this.router.navigate(['calendar']);  
+      }    
   }
 
 }

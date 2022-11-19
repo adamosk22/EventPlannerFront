@@ -43,10 +43,19 @@ const colors: Record<string, EventColor> = {
   selector: 'app-root',
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './calendar.component.html',
-  styleUrls: ['./calendar.component.css']
+  styles: [`
+  h3 {
+    margin: 0 0 10px;
+  }
+
+  pre {
+    background-color: #f5f5f5;
+    padding: 15px;
+  }`
+  ]
 })
 export class CalendarComponent {
-  @ViewChild('modalContent', { static: true }) modalContent: TemplateRef<any>;
+  @ViewChild('modalContent', { static: true }) modalContent: TemplateRef<any> | undefined;
 
   view: CalendarView = CalendarView.Month;
 
@@ -57,7 +66,7 @@ export class CalendarComponent {
   modalData: {
     action: string;
     event: CalendarEvent;
-  };
+  } | undefined;
 
   actions: CalendarEventAction[] = [
     {
