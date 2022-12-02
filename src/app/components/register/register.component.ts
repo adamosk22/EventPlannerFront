@@ -18,6 +18,6 @@ export class RegisterComponent implements OnInit {
     this.appService.addPerson(this.user)
       .subscribe(data => {
         console.log(data);
-      })      
+      })
   }
 }

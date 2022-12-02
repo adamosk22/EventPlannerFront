@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   ViewChild,
   TemplateRef,
+  ChangeDetectorRef,
 } from '@angular/core';
 import {
   startOfDay,
@@ -21,8 +22,20 @@ import {
   CalendarEventAction,
   CalendarEventTimesChangedEvent,
   CalendarView,
+  CalendarDayViewBeforeRenderEvent,
+  CalendarMonthViewBeforeRenderEvent,
+  CalendarWeekViewBeforeRenderEvent,
 } from 'angular-calendar';
-import { EventColor } from 'calendar-utils';
+import { 
+  EventColor,
+  getEventsInPeriod,
+  ViewPeriod
+} from 'calendar-utils';
+import { RRule } from 'rrule';
+import moment from 'moment-timezone';
+import e from 'cors';
+import { runInThisContext } from 'vm';
+import { eventNames, title } from 'process';
 
 const colors: Record<string, EventColor> = {
   red: {
@@ -38,6 +51,19 @@ const colors: Record<string, EventColor> = {
     secondary: '#FDF1BA',
   },
 };
+
+interface RecurringEvent {
+  title: string;
+  color: any;
+  rrule?: {
+    freq: any;
+    bymonth?: number;
+    bymonthday?: number;
+    byweekday?: any;
+  };
+  start: Date;
+  end?: Date;
+}
 
 @Component({
   selector: 'app-root',
@@ -63,6 +89,8 @@ export class CalendarComponent {
 
   viewDate: Date = new Date();
 
+  toCopy: Boolean = true;
+
   modalData: {
     action: string;
     event: CalendarEvent;
@@ -80,7 +108,7 @@ export class CalendarComponent {
       label: '<i class="fas fa-fw fa-trash-alt"></i>',
       a11yLabel: 'Delete',
       onClick: ({ event }: { event: CalendarEvent }): void => {
-        this.events = this.events.filter((iEvent) => iEvent !== event);
+        this.activities = this.activities.filter((iEvent) => iEvent !== event);
         this.handleEvent('Deleted', event);
       },
     },
@@ -88,32 +116,26 @@ export class CalendarComponent {
 
   refresh = new Subject<void>();
 
-  events: CalendarEvent[] = [
+  activities: CalendarEvent[] = [
     {
       start: subDays(startOfDay(new Date()), 1),
       end: addDays(new Date(), 1),
       title: 'A 3 day event',
-      color: { ...colors['red'] },
+      color: { ...colors['blue'] },
       actions: this.actions,
       allDay: true,
       resizable: {
         beforeStart: true,
         afterEnd: true,
       },
-      draggable: true,
-    },
-    {
-      start: startOfDay(new Date()),
-      title: 'An event with no end date',
-      color: { ...colors['yellow'] },
-      actions: this.actions,
+      draggable: true
     },
     {
       start: subDays(endOfMonth(new Date()), 3),
       end: addDays(endOfMonth(new Date()), 3),
       title: 'A long event that spans 2 months',
       color: { ...colors['blue'] },
-      allDay: true,
+      allDay: true
     },
     {
       start: addHours(startOfDay(new Date()), 2),
@@ -125,13 +147,34 @@ export class CalendarComponent {
         beforeStart: true,
         afterEnd: true,
       },
-      draggable: true,
+      draggable: true
+    }
+  ];
+
+  recurringEvents: RecurringEvent[] = [
+    {
+      title: 'Recurs weekly on mondays',
+      color: colors['red'],
+      rrule: {
+        freq: RRule.WEEKLY,
+        byweekday: [RRule.MO],
+      },
+      start: addHours(startOfDay(new Date()), 2),
+      end: addHours(new Date(), 2)
     },
   ];
 
+  calendarEvents: CalendarEvent[] = [];
+
+  viewPeriod: ViewPeriod | undefined;
+
   activeDayIsOpen: boolean = true;
 
-  constructor(private modal: NgbModal) {}
+  startDate: Date = new Date();
+
+  endDate: Date = new Date();
+
+  constructor(private modal: NgbModal, private cdr: ChangeDetectorRef) {}
 
   dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
     if (isSameMonth(date, this.viewDate)) {
@@ -152,7 +195,7 @@ export class CalendarComponent {
     newStart,
     newEnd,
   }: CalendarEventTimesChangedEvent): void {
-    this.events = this.events.map((iEvent) => {
+    this.activities = this.activities.map((iEvent) => {
       if (iEvent === event) {
         return {
           ...event,
@@ -166,13 +209,13 @@ export class CalendarComponent {
   }
 
   handleEvent(action: string, event: CalendarEvent): void {
-    this.modalData = { event, action };
-    this.modal.open(this.modalContent, { size: 'lg' });
+      this.modalData = { event, action };
+      this.modal.open(this.modalContent, { size: 'lg' });
   }
 
   addEvent(): void {
-    this.events = [
-      ...this.events,
+    this.activities = [
+      ...this.activities,
       {
         title: 'New event',
         start: startOfDay(new Date()),
@@ -182,13 +225,13 @@ export class CalendarComponent {
         resizable: {
           beforeStart: true,
           afterEnd: true,
-        },
+        }
       },
     ];
   }
 
   deleteEvent(eventToDelete: CalendarEvent) {
-    this.events = this.events.filter((event) => event !== eventToDelete);
+    this.activities = this.activities.filter((event) => event !== eventToDelete);
   }
 
   setView(view: CalendarView) {
@@ -197,5 +240,51 @@ export class CalendarComponent {
 
   closeOpenMonthViewDay() {
     this.activeDayIsOpen = false;
+  }
+
+  updateCalendarEvents(
+    viewRender:
+      | CalendarMonthViewBeforeRenderEvent
+      | CalendarWeekViewBeforeRenderEvent
+      | CalendarDayViewBeforeRenderEvent
+  ): void {
+    if (
+      !this.viewPeriod ||
+      !moment(this.viewPeriod.start).isSame(viewRender.period.start) ||
+      !moment(this.viewPeriod.end).isSame(viewRender.period.end)
+    ) {
+      this.viewPeriod = viewRender.period;
+      this.activities = this.activities.filter(e => e.color!=colors['red'])
+
+
+      this.recurringEvents.forEach((event) => {
+          this.startDate = moment(viewRender.period.start).startOf('day').toDate();
+          this.startDate.setHours(event.start.getHours())
+          this.endDate = moment(viewRender.period.end).endOf('day').toDate();
+          this.endDate.setHours(event.end?.getHours() || 0)
+          
+          const rule: RRule = new RRule({
+            ...event.rrule,
+            dtstart: this.startDate,
+            until: this.endDate,
+          });
+          const { title, color } = event;
+
+          rule.all().forEach((date) => {
+            const duplicatedEvents = this.activities.filter(e => e.start == date);
+            if(duplicatedEvents.length<1){
+              this.activities.push({
+                title,
+                color,
+                start: moment(date).toDate(),
+                end: moment(date).toDate()
+              });
+            }
+          });
+      });
+      this.cdr.detectChanges();
+      
+
+    }
   }
 }

@@ -62,30 +62,33 @@
     <mwl-calendar-month-view
       *ngSwitchCase="CalendarView.Month"
       [viewDate]="viewDate"
-      [events]="events"
+      [events]="activities"
       [refresh]="refresh"
       [activeDayIsOpen]="activeDayIsOpen"
       (dayClicked)="dayClicked($event.day)"
       (eventClicked)="handleEvent('Clicked', $event.event)"
       (eventTimesChanged)="eventTimesChanged($event)"
+      (beforeViewRender)="updateCalendarEvents($event)"
     >
     </mwl-calendar-month-view>
     <mwl-calendar-week-view
       *ngSwitchCase="CalendarView.Week"
       [viewDate]="viewDate"
-      [events]="events"
+      [events]="activities"
       [refresh]="refresh"
       (eventClicked)="handleEvent('Clicked', $event.event)"
       (eventTimesChanged)="eventTimesChanged($event)"
+      (beforeViewRender)="updateCalendarEvents($event)"
     >
     </mwl-calendar-week-view>
     <mwl-calendar-day-view
       *ngSwitchCase="CalendarView.Day"
       [viewDate]="viewDate"
-      [events]="events"
+      [events]="activities"
       [refresh]="refresh"
       (eventClicked)="handleEvent('Clicked', $event.event)"
       (eventTimesChanged)="eventTimesChanged($event)"
+      (beforeViewRender)="updateCalendarEvents($event)"
     >
     </mwl-calendar-day-view>
   </div>
@@ -116,7 +119,7 @@
       </thead>
   
       <tbody>
-        <tr *ngFor="let event of events">
+        <tr *ngFor="let event of activities">
           <td>
             <input
               type="text"
@@ -133,17 +136,10 @@
             />
           </td>
           <td>
-            <input
-              type="color"
-              [(ngModel)]="event.color!.secondary"
-              (change)="refresh.next()"
-            />
-            <input
-              type="color"
-              [ngModel]="event.color!.secondaryText ?? '#1e90ff'"
-              (ngModelChange)="event.color!.secondaryText = $event"
-              (change)="refresh.next()"
-            />
+            <select id="cars" name="cars">
+              <option value="once">Does not repeat</option>
+              <option value="weekly">Every week</option>
+            </select>
           </td>
           <td>
             <input

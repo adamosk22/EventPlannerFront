@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { CalendarComponent } from './components/calendar/calendar.component';
 import { LogInComponent } from './components/log-in/log-in.component';
 import { RegisterComponent } from './components/register/register.component';
+import { Router } from '@angular/router';
 
 const routes: Routes = [
 { path: '', pathMatch: 'full', redirectTo: 'login' },
@@ -15,4 +16,12 @@ const routes: Routes = [
   imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule]
 })
-export class AppRoutingModule { }
+export class AppRoutingModule { 
+  constructor(private router: Router){ }
+
+  ngOnInit() { }
+
+  redirect(){
+    this.router.navigate(['/role']);
+  }
+}
