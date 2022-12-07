@@ -21,10 +21,10 @@ export class LogInComponent implements OnInit {
     this.appService.authenticate(email, password)
       .subscribe(data => {
         console.log(data);
+        if(this.appService.isUserLoggedIn()){
+          this.router.navigate(['calendar']);  
+        }    
       })
-      if(this.appService.isUserLoggedIn()){
-        this.router.navigate(['calendar']);  
-      }    
   }
 
 }

@@ -1,3 +1,4 @@
+<div *ngIf="isDataAvailable">
 <div class="row text-center">
     <div class="col-md-4">
       <div class="btn-group">
@@ -110,11 +111,11 @@
       <thead>
         <tr>
           <th>Title</th>
-          <th>Primary color</th>
-          <th>Secondary + text color</th>
+          <th>Recurrence</th>
           <th>Starts at</th>
           <th>Ends at</th>
           <th>Remove</th>
+          <th>Save</th>
         </tr>
       </thead>
   
@@ -129,16 +130,9 @@
             />
           </td>
           <td>
-            <input
-              type="color"
-              [(ngModel)]="event.color!.primary"
-              (change)="refresh.next()"
-            />
-          </td>
-          <td>
-            <select id="cars" name="cars">
-              <option value="once">Does not repeat</option>
-              <option value="weekly">Every week</option>
+            <select id="recurrence" name="recurrence" [(ngModel)]="event.recurring">
+              <option value="false">Does not repeat</option>
+              <option value="true">Every week</option>
             </select>
           </td>
           <td>
@@ -176,6 +170,11 @@
               Delete
             </button>
           </td>
+          <td>
+            <button class="btn btn-primary" (click)="saveEvent(event)">
+              Save
+            </button>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -204,3 +203,4 @@
       </button>
     </div>
   </ng-template>
+  </div>

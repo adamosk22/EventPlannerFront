@@ -8,14 +8,10 @@ import {
 import {
   startOfDay,
   endOfDay,
-  subDays,
-  addDays,
-  endOfMonth,
   isSameDay,
   isSameMonth,
-  addHours,
 } from 'date-fns';
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import {
   CalendarEvent,
@@ -28,14 +24,13 @@ import {
 } from 'angular-calendar';
 import { 
   EventColor,
-  getEventsInPeriod,
   ViewPeriod
 } from 'calendar-utils';
 import { RRule } from 'rrule';
 import moment from 'moment-timezone';
-import e from 'cors';
-import { runInThisContext } from 'vm';
-import { eventNames, title } from 'process';
+import { Activity } from 'src/app/activity';
+import { CalendarService } from 'src/app/calendar.service';
+import { formatDate } from '@angular/common';
 
 const colors: Record<string, EventColor> = {
   red: {
@@ -63,6 +58,12 @@ interface RecurringEvent {
   };
   start: Date;
   end?: Date;
+  serverId?: number;
+}
+
+interface MyCalendarEvent extends CalendarEvent{
+  recurring?: boolean; 
+  serverId?: number;
 }
 
 @Component({
@@ -91,23 +92,25 @@ export class CalendarComponent {
 
   toCopy: Boolean = true;
 
+  activity: Activity = new Activity();
+
   modalData: {
     action: string;
-    event: CalendarEvent;
+    event: MyCalendarEvent;
   } | undefined;
 
   actions: CalendarEventAction[] = [
     {
       label: '<i class="fas fa-fw fa-pencil-alt"></i>',
       a11yLabel: 'Edit',
-      onClick: ({ event }: { event: CalendarEvent }): void => {
+      onClick: ({ event }: { event: MyCalendarEvent }): void => {
         this.handleEvent('Edited', event);
       },
     },
     {
       label: '<i class="fas fa-fw fa-trash-alt"></i>',
       a11yLabel: 'Delete',
-      onClick: ({ event }: { event: CalendarEvent }): void => {
+      onClick: ({ event }: { event: MyCalendarEvent }): void => {
         this.activities = this.activities.filter((iEvent) => iEvent !== event);
         this.handleEvent('Deleted', event);
       },
@@ -116,55 +119,11 @@ export class CalendarComponent {
 
   refresh = new Subject<void>();
 
-  activities: CalendarEvent[] = [
-    {
-      start: subDays(startOfDay(new Date()), 1),
-      end: addDays(new Date(), 1),
-      title: 'A 3 day event',
-      color: { ...colors['blue'] },
-      actions: this.actions,
-      allDay: true,
-      resizable: {
-        beforeStart: true,
-        afterEnd: true,
-      },
-      draggable: true
-    },
-    {
-      start: subDays(endOfMonth(new Date()), 3),
-      end: addDays(endOfMonth(new Date()), 3),
-      title: 'A long event that spans 2 months',
-      color: { ...colors['blue'] },
-      allDay: true
-    },
-    {
-      start: addHours(startOfDay(new Date()), 2),
-      end: addHours(new Date(), 2),
-      title: 'A draggable and resizable event',
-      color: { ...colors['yellow'] },
-      actions: this.actions,
-      resizable: {
-        beforeStart: true,
-        afterEnd: true,
-      },
-      draggable: true
-    }
-  ];
+  activities: MyCalendarEvent[] = [];
 
-  recurringEvents: RecurringEvent[] = [
-    {
-      title: 'Recurs weekly on mondays',
-      color: colors['red'],
-      rrule: {
-        freq: RRule.WEEKLY,
-        byweekday: [RRule.MO],
-      },
-      start: addHours(startOfDay(new Date()), 2),
-      end: addHours(new Date(), 2)
-    },
-  ];
+  recurringEvents: RecurringEvent[] = [];
 
-  calendarEvents: CalendarEvent[] = [];
+  calendarEvents: MyCalendarEvent[] = [];
 
   viewPeriod: ViewPeriod | undefined;
 
@@ -174,9 +133,15 @@ export class CalendarComponent {
 
   endDate: Date = new Date();
 
-  constructor(private modal: NgbModal, private cdr: ChangeDetectorRef) {}
+  startDateTime: Date = new Date();
 
-  dayClicked({ date, events }: { date: Date; events: CalendarEvent[] }): void {
+  endDateTime: Date = new Date();
+
+  activityList: Activity[] = [];
+
+  constructor(private modal: NgbModal, private cdr: ChangeDetectorRef, private calendarService: CalendarService) {}
+
+  dayClicked({ date, events }: { date: Date; events: MyCalendarEvent[] }): void {
     if (isSameMonth(date, this.viewDate)) {
       if (
         (isSameDay(this.viewDate, date) && this.activeDayIsOpen === true) ||
@@ -208,7 +173,7 @@ export class CalendarComponent {
     this.handleEvent('Dropped or resized', event);
   }
 
-  handleEvent(action: string, event: CalendarEvent): void {
+  handleEvent(action: string, event: MyCalendarEvent): void {
       this.modalData = { event, action };
       this.modal.open(this.modalContent, { size: 'lg' });
   }
@@ -230,8 +195,17 @@ export class CalendarComponent {
     ];
   }
 
-  deleteEvent(eventToDelete: CalendarEvent) {
-    this.activities = this.activities.filter((event) => event !== eventToDelete);
+  deleteEvent(eventToDelete: MyCalendarEvent) {
+    this.calendarService.deleteActivity(eventToDelete.serverId)
+    .subscribe(data => {
+      console.log(data);
+    })
+    if(eventToDelete.recurring){
+      this.recurringEvents = this.recurringEvents.filter((event) => event.serverId !== eventToDelete.serverId);
+    }
+    this.activities = this.activities.filter((event) => event.serverId !== eventToDelete.serverId);
+    this.cdr.detectChanges();
+    this.refresh.next();
   }
 
   setView(view: CalendarView) {
@@ -260,15 +234,17 @@ export class CalendarComponent {
       this.recurringEvents.forEach((event) => {
           this.startDate = moment(viewRender.period.start).startOf('day').toDate();
           this.startDate.setHours(event.start.getHours())
-          this.endDate = moment(viewRender.period.end).endOf('day').toDate();
+          this.startDate.setMinutes(event.start.getMinutes())
+          this.endDate = moment(viewRender.period.end).startOf('day').toDate();
           this.endDate.setHours(event.end?.getHours() || 0)
+          this.endDate.setMinutes(event.end?.getMinutes() || 0)
           
           const rule: RRule = new RRule({
             ...event.rrule,
             dtstart: this.startDate,
             until: this.endDate,
           });
-          const { title, color } = event;
+          const { title, color, serverId } = event;
 
           rule.all().forEach((date) => {
             const duplicatedEvents = this.activities.filter(e => e.start == date);
@@ -277,14 +253,95 @@ export class CalendarComponent {
                 title,
                 color,
                 start: moment(date).toDate(),
-                end: moment(date).toDate()
+                end: moment(date).toDate(),
+                recurring: true,
+                serverId
               });
             }
           });
+          this.activities.forEach((activity) => {
+            if(activity.serverId == serverId){
+              activity.end?.setHours(event.end?.getHours() || 0);
+              activity.end?.setMinutes(event.end?.getMinutes() || 0);
+            }})
       });
       this.cdr.detectChanges();
       
 
     }
   }
+
+  saveEvent(eventToSave: MyCalendarEvent) {
+    this.activity.userEmail = sessionStorage.getItem("email");
+    this.activity.name = eventToSave.title;
+    this.activity.recurring = eventToSave.recurring;
+    this.activity.startDateTime = formatDate(eventToSave.start,"yyyy-MM-dd HH:mm","en-US");
+    this.activity.endDateTime = formatDate(eventToSave.end?eventToSave.end:eventToSave.start,"yyyy-MM-dd HH:mm","en-US");
+    this.activity.id = eventToSave.serverId;
+    if(!this.activity.id){
+      this.calendarService.addActivity(this.activity)
+      .subscribe(data => {
+        console.log(data);
+      })
+    }
+    else{
+      this.calendarService.modifyActivity(this.activity)
+      .subscribe(data => {
+        console.log(data);
+      })
+    }
+      //window.location.reload();
+  }
+
+  isDataAvailable:boolean = false;
+
+  ngOnInit(){
+    const result: Observable<Activity[]> = this.calendarService.getActivities(sessionStorage.getItem("email"));
+    result.subscribe(
+      val => {
+        console.log(val);
+        val.forEach(
+          (a) => {
+            const title = a.name || "default";
+            const recurring = a.recurring;
+            const start = new Date(this.format(a.startDateTime || '0000-00-00T00:00'));
+            const end = new Date(this.format(a.endDateTime || '0000-00-00 00:00'));
+            const color = colors['red'];
+            const serverId = a.id;
+            if(!a.recurring){
+              this.activities.push({
+                title, recurring, start, end, serverId
+              });
+            }
+            else if(a.recurring){
+              this.recurringEvents.push({
+                title,
+                color,
+                rrule: {
+                  freq: RRule.WEEKLY,
+                  byweekday: [RRule.MO],
+                },
+                start,
+                end,
+                serverId
+              })
+            }
+          }
+      )
+      this.isDataAvailable = true;
+      this.refresh.next();
+      this.cdr.detectChanges();
+      this.refresh.next();
+      }
+    )
+  }
+
+  format(dateTimeStr: String): Date{
+    const [dateStr, timeStr] = dateTimeStr.split('T')
+    const [year, month, day] = dateStr.split('-')
+    const [hour, minute] = timeStr.split(':')
+    return new Date(+year, +month - 1, +day, +hour, +minute)
+  }
+
+  
 }
