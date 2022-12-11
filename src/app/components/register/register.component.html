@@ -19,10 +19,13 @@
         </mat-form-field>
         <mat-form-field class="example-full-width">
           <mat-label>Choose a role...</mat-label>
-          <mat-select>
+          <mat-select [(ngModel)]="user.role" name="role">
             <mat-option [value]="roles" *ngFor="let roles of Roles">{{roles}}
             </mat-option>
           </mat-select>
+        </mat-form-field>
+        <mat-form-field class="example-full-width" *ngIf="user.role=='ORGANIZER'">
+          <input matInput placeholder="Company name" [(ngModel)]="user.company" name="company">
         </mat-form-field>
       </mat-card-content>
       <button mat-stroked-button color="accent" class="btn-block" (click)="addPerson()">Register</button>

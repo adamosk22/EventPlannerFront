@@ -3,6 +3,7 @@ import { User } from './user';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from "rxjs/operators";
+import jwt_decode from 'jwt-decode';
 
  
 @Injectable({providedIn:'root'})
@@ -33,6 +34,9 @@ export class AppService {
           sessionStorage.setItem("email", email);
           let tokenStr = "Bearer " + userData.token;
           sessionStorage.setItem("token", tokenStr);
+          const tokenInfo = this.getDecodedAccessToken(userData.token);
+          const role = tokenInfo.role;
+          sessionStorage.setItem("role", role)
           return userData;
         })
       );
@@ -46,6 +50,14 @@ export class AppService {
 
   logOut() {
     sessionStorage.removeItem("email");
+  }
+
+  getDecodedAccessToken(token: string): any {
+    try {
+      return jwt_decode(token);
+    } catch(Error) {
+      return null;
+    }
   }
  
 }

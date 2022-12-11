@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Activity } from './activity';
+import { Event } from './event';
 
 @Injectable({providedIn:'root'})
 export class CalendarService {
@@ -31,5 +32,12 @@ export class CalendarService {
         const body=JSON.stringify(activity);
         console.log(body)
         return this.http.patch(this.baseURL + 'activities', body, {'headers':headers})
+    }
+
+    addEvent(event:Event): Observable<any>{
+        const headers = { 'content-type': 'application/json'}  
+        const body=JSON.stringify(event);
+        console.log(body)
+        return this.http.post(this.baseURL + 'events', body, {'headers':headers})
     }
 }

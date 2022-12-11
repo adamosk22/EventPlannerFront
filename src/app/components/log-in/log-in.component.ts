@@ -22,7 +22,7 @@ export class LogInComponent implements OnInit {
       .subscribe(data => {
         console.log(data);
         if(this.appService.isUserLoggedIn()){
-          this.router.navigate(['calendar']);  
+          this.router.navigate(['calendar']); 
         }    
       })
   }

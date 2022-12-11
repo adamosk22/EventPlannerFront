@@ -7,7 +7,7 @@ import { AppService } from 'C:/Users/aadam/Documents/Praca inżynierska/EventPla
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent implements OnInit {
-  Roles: any = ['Admin', 'Organizer', 'Client'];
+  Roles: any = ['ORGANIZER', 'CLIENT'];
   constructor(private appService:AppService) { }
   ngOnInit() {
   }

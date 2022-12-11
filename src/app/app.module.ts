@@ -4,6 +4,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { LogInComponent } from './components/log-in/log-in.component';
 import { RegisterComponent } from './components/register/register.component';
+import { AddEventsComponent } from './components/add-events/add-events.component';
+import { EventsComponent } from './components/events/events.component';
 import { CalendarComponent } from './components/calendar/calendar.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AngularMaterialModule } from './angular-material.module';
@@ -25,7 +27,9 @@ import { NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
     AppComponent,
     LogInComponent,
     RegisterComponent,
-    CalendarComponent
+    CalendarComponent,
+    AddEventsComponent,
+    EventsComponent
   ],
   imports: [
     BrowserModule,

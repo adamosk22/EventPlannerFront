@@ -1,0 +1,33 @@
+<div class="container">
+  <h1>
+    {{title}}
+  </h1>
+  <form [formGroup]="formGroup" (ngSubmit)="addEvent()">
+    <div class="form-group">
+      <label for="name">Event name</label>
+      <input type="text" class="form-control" id="name" 
+        placeholder="Enter event name" formControlName="name" [(ngModel)]="event.name"/>
+    </div>
+    <div class="form-group">
+      <label for="start">Start date</label>
+      <input type="text" class="form-control" id="start" 
+        placeholder="Enter start date in format yyyy-MM-dd HH:mm" formControlName="startDateTime"/>
+    </div>
+    <div class="form-group">
+      <label for="end">End date</label>
+      <input type="text" class="form-control" id="end" 
+        placeholder="Enter end date in format yyyy-MM-dd HH:mm" formControlName="endDateTime"/>
+    </div>
+    <div class="form-group">
+      <label for="description">Event description</label>
+      <input type="text" class="form-control" id="description" 
+        placeholder="Enter event description" formControlName="description"/>
+    </div>
+    <div class="form-group">
+      <label for="location">Event location</label>
+      <input type="text" class="form-control" id="location" 
+        placeholder="Enter event location" formControlName="location"/>
+    </div>
+    <button class="btn btn-primary" type="submit">Submit Form</button>
+  </form>
+</div>

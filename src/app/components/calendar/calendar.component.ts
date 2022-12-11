@@ -137,7 +137,11 @@ export class CalendarComponent {
 
   endDateTime: Date = new Date();
 
+  dayAfterEnd: Date = new Date();
+
   activityList: Activity[] = [];
+
+  viewActivities: MyCalendarEvent[] = [];
 
   constructor(private modal: NgbModal, private cdr: ChangeDetectorRef, private calendarService: CalendarService) {}
 
@@ -204,6 +208,7 @@ export class CalendarComponent {
       this.recurringEvents = this.recurringEvents.filter((event) => event.serverId !== eventToDelete.serverId);
     }
     this.activities = this.activities.filter((event) => event.serverId !== eventToDelete.serverId);
+    this.viewActivities = this.activities.filter((event) => event.serverId !== eventToDelete.serverId);
     this.cdr.detectChanges();
     this.refresh.next();
   }
@@ -235,9 +240,10 @@ export class CalendarComponent {
           this.startDate = moment(viewRender.period.start).startOf('day').toDate();
           this.startDate.setHours(event.start.getHours())
           this.startDate.setMinutes(event.start.getMinutes())
-          this.endDate = moment(viewRender.period.end).startOf('day').toDate();
+          this.endDate = moment(viewRender.period.end).endOf('day').toDate();
           this.endDate.setHours(event.end?.getHours() || 0)
           this.endDate.setMinutes(event.end?.getMinutes() || 0)
+          this.dayAfterEnd.setDate(this.endDate.getDate() + 1)
           
           const rule: RRule = new RRule({
             ...event.rrule,
@@ -265,6 +271,7 @@ export class CalendarComponent {
               activity.end?.setMinutes(event.end?.getMinutes() || 0);
             }})
       });
+      this.viewActivities = this.activities.filter((event) => event.start >= this.startDate )
       this.cdr.detectChanges();
       
 
@@ -290,7 +297,7 @@ export class CalendarComponent {
         console.log(data);
       })
     }
-      //window.location.reload();
+      window.location.reload();
   }
 
   isDataAvailable:boolean = false;
