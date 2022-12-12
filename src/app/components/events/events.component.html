@@ -1,1 +1,23 @@
-<p>events works!</p>
+<mat-accordion>
+    <mat-expansion-panel *ngFor="let event of events">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            {{ event.name }}
+          </mat-panel-title>
+          <mat-panel-description>
+            {{ event.startDateTime }} - {{event.endDateTime}}
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <p>
+            Location: {{ event.location }}
+            <br>
+            Description: {{ event.description }}
+            <br>
+            Start: {{event.startDateTime}}
+            <br>
+            End: {{event.endDateTime}}
+            <br>
+            Company: {{event.company}}
+        </p>
+    </mat-expansion-panel>
+</mat-accordion>

@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container" *ngIf="role=='ORGANIZER'">
   <h1>
     {{title}}
   </h1>
@@ -30,4 +30,7 @@
     </div>
     <button class="btn btn-primary" type="submit">Submit Form</button>
   </form>
+</div>
+<div class="container" *ngIf="role!='ORGANIZER'">
+  <h1>This feature is only available for event organizers.</h1>
 </div>

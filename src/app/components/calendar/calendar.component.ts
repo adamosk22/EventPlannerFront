@@ -26,7 +26,7 @@ import {
   EventColor,
   ViewPeriod
 } from 'calendar-utils';
-import { RRule } from 'rrule';
+import { RRule, Weekday } from 'rrule';
 import moment from 'moment-timezone';
 import { Activity } from 'src/app/activity';
 import { CalendarService } from 'src/app/calendar.service';
@@ -189,14 +189,15 @@ export class CalendarComponent {
         title: 'New event',
         start: startOfDay(new Date()),
         end: endOfDay(new Date()),
-        color: colors['red'],
-        draggable: true,
+        color: colors['blue'],
+        draggable: false,
         resizable: {
           beforeStart: true,
           afterEnd: true,
         }
       },
     ];
+    this.viewActivities = this.activities.filter((event) => event.start >= this.startDate )
   }
 
   deleteEvent(eventToDelete: MyCalendarEvent) {
@@ -238,11 +239,7 @@ export class CalendarComponent {
 
       this.recurringEvents.forEach((event) => {
           this.startDate = moment(viewRender.period.start).startOf('day').toDate();
-          this.startDate.setHours(event.start.getHours())
-          this.startDate.setMinutes(event.start.getMinutes())
           this.endDate = moment(viewRender.period.end).endOf('day').toDate();
-          this.endDate.setHours(event.end?.getHours() || 0)
-          this.endDate.setMinutes(event.end?.getMinutes() || 0)
           this.dayAfterEnd.setDate(this.endDate.getDate() + 1)
           
           const rule: RRule = new RRule({
@@ -267,14 +264,18 @@ export class CalendarComponent {
           });
           this.activities.forEach((activity) => {
             if(activity.serverId == serverId){
+              activity.start?.setHours(event.start?.getHours())
+              activity.start.setMinutes(event.start.getMinutes())
               activity.end?.setHours(event.end?.getHours() || 0);
               activity.end?.setMinutes(event.end?.getMinutes() || 0);
             }})
       });
       this.viewActivities = this.activities.filter((event) => event.start >= this.startDate )
+      if(this.viewActivities.length==0){
+        this.addEvent();
+        this.viewActivities = this.activities;
+      }
       this.cdr.detectChanges();
-      
-
     }
   }
 
@@ -326,7 +327,7 @@ export class CalendarComponent {
                 color,
                 rrule: {
                   freq: RRule.WEEKLY,
-                  byweekday: [RRule.MO],
+                  byweekday: [this.getWeekDay(start)],
                 },
                 start,
                 end,
@@ -349,6 +350,32 @@ export class CalendarComponent {
     const [hour, minute] = timeStr.split(':')
     return new Date(+year, +month - 1, +day, +hour, +minute)
   }
+
+  getWeekDay(date: Date): Weekday{
+    let day = date.getDay()
+    switch(day){
+      case 1:
+        return RRule.SU
+      case 2:
+        return RRule.MO
+      case 3:
+        return RRule.TU
+      case 4:
+        return RRule.WE
+      case 5:
+        return RRule.TH
+      case 6:
+        return RRule.FR
+      case 7:
+        return RRule.SA
+      default:
+        return RRule.MO 
+    }
+  }
+
+
+
+  
 
   
 }

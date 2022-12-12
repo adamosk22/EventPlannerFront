@@ -40,4 +40,9 @@ export class CalendarService {
         console.log(body)
         return this.http.post(this.baseURL + 'events', body, {'headers':headers})
     }
+
+    getEvents(userEmail?: String | null): Observable<Event[]>{
+        const headers = { 'content-type': 'application/json'}  
+        return this.http.get<Event[]>(this.baseURL + 'events/' + userEmail)
+    }
 }
