@@ -18,6 +18,30 @@
             End: {{event.endDateTime}}
             <br>
             Company: {{event.company}}
+            <br>
+            <button class="btn btn-primary" (click)="addToCalendar(event)">
+              Add to calendar
+            </button>
         </p>
+        <div *ngIf="role=='ADMIN'">
+          <h1>Admin tools</h1>
+          <form [formGroup]="formGroup" (ngSubmit)="modifyEvent(event)">
+            <div class="form-group">
+              <label for="start">Start date</label>
+              <input type="text" class="form-control" id="start" 
+                placeholder="Enter start date in format yyyy-MM-dd HH:mm" formControlName="startDateTime"/>
+            </div>
+            <div class="form-group">
+              <label for="end">End date</label>
+              <input type="text" class="form-control" id="end" 
+                placeholder="Enter end date in format yyyy-MM-dd HH:mm" formControlName="endDateTime"/>
+            </div>
+            <button class="btn btn-primary" type="submit">Modify event</button>
+            <br>
+            <button class="btn btn-danger" (click)="deleteEvent(event)">
+              Delete
+            </button>
+          </form>
+        </div>
     </mat-expansion-panel>
 </mat-accordion>

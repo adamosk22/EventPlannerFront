@@ -45,4 +45,15 @@ export class CalendarService {
         const headers = { 'content-type': 'application/json'}  
         return this.http.get<Event[]>(this.baseURL + 'events/' + userEmail)
     }
+
+    modifyEvent(event:Event): Observable<any>{
+        const headers = { 'content-type': 'application/json'}  
+        const body=JSON.stringify(event);
+        console.log(body)
+        return this.http.patch(this.baseURL + 'events', body, {'headers':headers})
+    }
+
+    deleteEvent(serverId?: number | null): Observable<any>{
+        return this.http.delete(this.baseURL + 'events/' + serverId)
+    }
 }
