@@ -4,5 +4,6 @@ export class Activity{
     name?:string
     userEmail?:string | null
     recurring?:boolean
+    isEvent?:boolean
     id?: number
 }

@@ -50,6 +50,7 @@ export class AppService {
 
   logOut() {
     sessionStorage.removeItem("email");
+    sessionStorage.removeItem("role");
   }
 
   getDecodedAccessToken(token: string): any {

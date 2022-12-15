@@ -64,6 +64,7 @@ interface RecurringEvent {
 interface MyCalendarEvent extends CalendarEvent{
   recurring?: boolean; 
   serverId?: number;
+  isEvent?: boolean;
 }
 
 @Component({
@@ -283,6 +284,7 @@ export class CalendarComponent {
     this.activity.userEmail = sessionStorage.getItem("email");
     this.activity.name = eventToSave.title;
     this.activity.recurring = eventToSave.recurring;
+    this.activity.isEvent = eventToSave.isEvent;
     this.activity.startDateTime = formatDate(eventToSave.start,"yyyy-MM-dd HH:mm","en-US");
     this.activity.endDateTime = formatDate(eventToSave.end?eventToSave.end:eventToSave.start,"yyyy-MM-dd HH:mm","en-US");
     this.activity.id = eventToSave.serverId;
@@ -315,11 +317,18 @@ export class CalendarComponent {
             const start = new Date(this.format(a.startDateTime || '0000-00-00T00:00'));
             const end = new Date(this.format(a.endDateTime || '0000-00-00 00:00'));
             const color = colors['red'];
+            const colorEvent = colors['yellow']
             const serverId = a.id;
             if(!a.recurring){
-              this.activities.push({
-                title, recurring, start, end, serverId
-              });
+              if(a.isEvent){
+                this.activities.push({
+                  title, recurring, start, end, serverId, color: colorEvent
+                })
+              }else{
+                this.activities.push({
+                  title, recurring, start, end, serverId
+                });
+              }
             }
             else if(a.recurring){
               this.recurringEvents.push({

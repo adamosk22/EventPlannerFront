@@ -1,4 +1,4 @@
-<div class="container" *ngIf="role=='ORGANIZER'">
+<div class="container" *ngIf="role=='ORGANIZER' || role=='ADMIN'">
   <h1>
     {{title}}
   </h1>
@@ -32,5 +32,5 @@
   </form>
 </div>
 <div class="container" *ngIf="role!='ORGANIZER'">
-  <h1>This feature is only available for event organizers.</h1>
+  <h1>This feature is not available for clients.</h1>
 </div>

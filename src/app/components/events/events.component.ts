@@ -13,9 +13,9 @@ import { Event } from 'src/app/event';
 export class EventsComponent implements OnInit {
   events: Event[] = [];
 
-  isDataAvailable: boolean = false;
-
   role = sessionStorage.getItem("role");
+
+  editAvailable = false;
 
   formGroup: FormGroup;
 
@@ -32,7 +32,6 @@ export class EventsComponent implements OnInit {
       val => {
         console.log(val);
         this.events = val;
-        this.isDataAvailable = true;
       }
     )
   }
@@ -43,6 +42,7 @@ export class EventsComponent implements OnInit {
     activity.endDateTime = event.endDateTime?.replace("T", " ");
     activity.name = event.name;
     activity.recurring = false;
+    activity.isEvent = true;
     activity.userEmail = sessionStorage.getItem("email");
     this.calendarService.addActivity(activity)
       .subscribe(data => {
@@ -67,6 +67,10 @@ export class EventsComponent implements OnInit {
     .subscribe(data => {
       console.log(data);
     })
+  }
+
+  unlockTools(event: Event): boolean{
+    return (this.role == 'ADMIN' || (this.role=='ORGANIZER' && event.userEmail == sessionStorage.getItem("email")))
   }
 
 }

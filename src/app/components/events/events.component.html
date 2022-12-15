@@ -23,8 +23,8 @@
               Add to calendar
             </button>
         </p>
-        <div *ngIf="role=='ADMIN'">
-          <h1>Admin tools</h1>
+        <div *ngIf="unlockTools(event)">
+          <h1>Special tools</h1>
           <form [formGroup]="formGroup" (ngSubmit)="modifyEvent(event)">
             <div class="form-group">
               <label for="start">Start date</label>
