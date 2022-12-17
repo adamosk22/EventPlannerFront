@@ -19,7 +19,7 @@ import { adapterFactory } from 'angular-calendar/date-adapters/date-fns';
 import { CommonModule } from '@angular/common';
 import { FlatpickrModule } from 'angularx-flatpickr';
 import { NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
-
+import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 
 
 @NgModule({
@@ -43,6 +43,7 @@ import { NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
     CommonModule,
     ReactiveFormsModule, CalendarModule.forRoot({ provide: DateAdapter, useFactory: adapterFactory }),
     FlatpickrModule.forRoot(),
+    NgMultiSelectDropDownModule.forRoot(),
   ],
   providers: [
     {

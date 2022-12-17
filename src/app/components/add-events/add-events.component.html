@@ -6,7 +6,7 @@
     <div class="form-group">
       <label for="name">Event name</label>
       <input type="text" class="form-control" id="name" 
-        placeholder="Enter event name" formControlName="name" [(ngModel)]="event.name"/>
+        placeholder="Enter event name" formControlName="name"/>
     </div>
     <div class="form-group">
       <label for="start">Start date</label>
@@ -28,6 +28,15 @@
       <input type="text" class="form-control" id="location" 
         placeholder="Enter event location" formControlName="location"/>
     </div>
+    <ng-multiselect-dropdown
+      [placeholder]="'Choose event categories'"
+      [settings]="dropdownSettings"
+      [data]="dropdownList"
+      formControlName="selectedItems"
+      (onSelect)="onItemSelect($event)"
+      (onSelectAll)="onSelectAll($event)"
+    >
+    </ng-multiselect-dropdown>
     <button class="btn btn-primary" type="submit">Submit Form</button>
   </form>
 </div>

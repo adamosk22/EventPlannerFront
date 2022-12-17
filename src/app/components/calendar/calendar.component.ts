@@ -198,7 +198,7 @@ export class CalendarComponent {
         }
       },
     ];
-    this.viewActivities = this.activities.filter((event) => event.start >= this.startDate )
+    this.viewActivities = this.activities.filter((event) => (event.start >= (this.viewPeriod?.start || this.startDate)) )
   }
 
   deleteEvent(eventToDelete: MyCalendarEvent) {
@@ -271,7 +271,7 @@ export class CalendarComponent {
               activity.end?.setMinutes(event.end?.getMinutes() || 0);
             }})
       });
-      this.viewActivities = this.activities.filter((event) => event.start >= this.startDate )
+      this.viewActivities = this.activities.filter((event) => event.start >= this.startDate && event.end && event.end <= this.endDate)
       if(this.viewActivities.length==0){
         this.addEvent();
         this.viewActivities = this.activities;
@@ -281,25 +281,27 @@ export class CalendarComponent {
   }
 
   saveEvent(eventToSave: MyCalendarEvent) {
-    this.activity.userEmail = sessionStorage.getItem("email");
-    this.activity.name = eventToSave.title;
-    this.activity.recurring = eventToSave.recurring;
-    this.activity.isEvent = eventToSave.isEvent;
-    this.activity.startDateTime = formatDate(eventToSave.start,"yyyy-MM-dd HH:mm","en-US");
-    this.activity.endDateTime = formatDate(eventToSave.end?eventToSave.end:eventToSave.start,"yyyy-MM-dd HH:mm","en-US");
-    this.activity.id = eventToSave.serverId;
-    if(!this.activity.id){
-      this.calendarService.addActivity(this.activity)
-      .subscribe(data => {
-        console.log(data);
-      })
-    }
-    else{
-      this.calendarService.modifyActivity(this.activity)
-      .subscribe(data => {
-        console.log(data);
-      })
-    }
+    if(eventToSave.end && eventToSave.start < eventToSave.end){
+      this.activity.userEmail = sessionStorage.getItem("email");
+      this.activity.name = eventToSave.title;
+      this.activity.recurring = eventToSave.recurring;
+      this.activity.isEvent = eventToSave.isEvent;
+      this.activity.startDateTime = formatDate(eventToSave.start,"yyyy-MM-dd HH:mm","en-US");
+      this.activity.endDateTime = formatDate(eventToSave.end?eventToSave.end:eventToSave.start,"yyyy-MM-dd HH:mm","en-US");
+      this.activity.id = eventToSave.serverId;
+      if(!this.activity.id){
+        this.calendarService.addActivity(this.activity)
+        .subscribe(data => {
+          console.log(data);
+        })
+      }
+      else{
+        this.calendarService.modifyActivity(this.activity)
+        .subscribe(data => {
+          console.log(data);
+        })
+      }
+    } 
       window.location.reload();
   }
 
