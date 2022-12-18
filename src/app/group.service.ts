@@ -3,6 +3,7 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { Activity } from "./activity";
 import { Category } from "./category";
+import { Group } from "./group";
 
 @Injectable({providedIn:'root'})
 export class GroupService {
@@ -21,6 +22,13 @@ export class GroupService {
         const body=JSON.stringify(category);
         console.log(body)
         return this.http.patch(this.baseURL + 'categories', body, {'headers':headers})
+    }
+
+    addGroup(group:Group): Observable<any>{
+        const headers = { 'content-type': 'application/json'}  
+        const body=JSON.stringify(group);
+        console.log(body)
+        return this.http.post(this.baseURL + 'groups', body, {'headers':headers})
     }
 }
 

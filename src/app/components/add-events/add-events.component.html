@@ -28,6 +28,7 @@
       <input type="text" class="form-control" id="location" 
         placeholder="Enter event location" formControlName="location"/>
     </div>
+    <div class="form-group">
     <ng-multiselect-dropdown
       [placeholder]="'Choose event categories'"
       [settings]="dropdownSettings"
@@ -37,6 +38,7 @@
       (onSelectAll)="onSelectAll($event)"
     >
     </ng-multiselect-dropdown>
+    </div>
     <button class="btn btn-primary" type="submit">Submit Form</button>
   </form>
 </div>

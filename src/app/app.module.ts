@@ -20,6 +20,8 @@ import { CommonModule } from '@angular/common';
 import { FlatpickrModule } from 'angularx-flatpickr';
 import { NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
+import { GroupsComponent } from './components/groups/groups.component';
+import { GroupsViewComponent } from './components/groups-view/groups-view.component';
 
 
 @NgModule({
@@ -29,7 +31,9 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
     RegisterComponent,
     CalendarComponent,
     AddEventsComponent,
-    EventsComponent
+    EventsComponent,
+    GroupsComponent,
+    GroupsViewComponent
   ],
   imports: [
     BrowserModule,
