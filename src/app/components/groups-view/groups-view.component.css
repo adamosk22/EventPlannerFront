@@ -1,0 +1,28 @@
+.column {
+    float: left;
+  }
+
+  .center{
+    width: 50%;
+  }
+
+  .left, .right {
+    width: 25%;
+  }
+  
+  /* Clear floats after the columns */
+  .row:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+
+  .primary{
+    color: red
+  }
+
+  .incenter {
+    margin: auto;
+    width: 50%;
+    padding: 10px;
+  }

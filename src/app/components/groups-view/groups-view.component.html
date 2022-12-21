@@ -1,1 +1,88 @@
-<p>groups-view works!</p>
+<div class="container" *ngIf="isDataAvailable">
+  <mat-form-field appearance="fill">
+    <mat-label>Select group</mat-label>
+    <mat-select [(ngModel)]="selectedGroup" name="group" (ngModelChange)="getInfo()">
+      <mat-option *ngFor="let group of groups" [value]="group">{{group.name}}</mat-option>
+    </mat-select>
+  </mat-form-field>
+  <div *ngIf="groupChosen">
+    <div class="incenter">
+    <h1>
+      {{selectedGroup.name}}
+    </h1>
+    <h2>
+      {{selectedGroup.description}}
+    </h2>
+    <h2>
+      Give this code to your friend as an invite to join this group: {{selectedGroup.code}}
+    </h2>
+    </div>
+    <div class="row">
+      <div class="column left">
+        <mat-list>
+          <mat-list-item class="primary">Group creator:</mat-list-item>
+          <mat-list-item class="primary">{{creator.firstName + ' ' + creator.lastName}}</mat-list-item>
+          <mat-list-item>Group members:</mat-list-item>
+          <mat-list-item *ngFor="let user of users">{{user.firstName + ' ' + user.lastName}}</mat-list-item>
+        </mat-list>
+      </div>
+      <div class="column center">
+        <mat-accordion>
+          <mat-expansion-panel *ngFor="let event of events">
+            <mat-expansion-panel-header>
+              <mat-panel-title>
+                {{ event.name }}
+              </mat-panel-title>
+              <mat-panel-description>
+                {{ event.startDateTime }} - {{event.endDateTime}}
+              </mat-panel-description>
+            </mat-expansion-panel-header>
+            <p>
+              Group members who have time to participate: {{event.peopleInterested}}
+              <br>
+              Location: {{ event.location }}
+              <br>
+              Description: {{ event.description }}
+              <br>
+              Start: {{event.startDateTime}}
+              <br>
+              End: {{event.endDateTime}}
+              <br>
+              Company: {{event.company}}
+              <br>
+              <button class="btn btn-primary" (click)="addToCalendar(event)">
+                Add to calendar
+              </button>
+            </p>
+            <div *ngIf="unlockTools(event)">
+              <h1>Special tools</h1>
+              <form [formGroup]="formGroup" (ngSubmit)="modifyEvent(event)">
+                <div class="form-group">
+                  <label for="start">Start date</label>
+                  <input type="text" class="form-control" id="start"
+                    placeholder="Enter start date in format yyyy-MM-dd HH:mm" formControlName="startDateTime" />
+                </div>
+                <div class="form-group">
+                  <label for="end">End date</label>
+                  <input type="text" class="form-control" id="end"
+                    placeholder="Enter end date in format yyyy-MM-dd HH:mm" formControlName="endDateTime" />
+                </div>
+                <button class="btn btn-primary" type="submit">Modify event</button>
+                <br>
+                <button class="btn btn-danger" (click)="deleteEvent(event)">
+                  Delete
+                </button>
+              </form>
+            </div>
+          </mat-expansion-panel>
+        </mat-accordion>
+      </div>
+      <div class="column right">
+        <mat-list>
+          <mat-list-item>Favorite categories:</mat-list-item>
+          <mat-list-item *ngFor="let category of categories">{{category.name}}</mat-list-item>
+        </mat-list>
+      </div>
+    </div>
+  </div>
+</div>

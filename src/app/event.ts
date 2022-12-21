@@ -7,6 +7,7 @@ export class Event{
     userEmail?:string | null
     company?:string
     id?:number
+    peopleInterested?:number
 
     public constructor(init?: Partial<Event>) {
         Object.assign(this, init);

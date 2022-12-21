@@ -64,6 +64,25 @@ export class GroupsComponent implements OnInit {
     this.groupService.addGroup(this.group)
       .subscribe(data => {
         console.log(data);
+        let selectedItems: DropdwownItem[] = this.formGroup.get('selectedItems')?.value
+        let groupName = this.group.name
+        window.location.reload();
+        selectedItems.forEach((s) => {
+        let category:Category = { name: s.item_text, groupName };
+        this.groupService.addCategoryToGroup(category)
+        .subscribe(data => {
+          console.log(data);
+        })
+      })
+      })
+  }
+
+  joinGroup(){
+    this.group = new Group(this.formGroupJoin.value);
+    this.group.userEmail = sessionStorage.getItem("email");
+    this.groupService.joinGroup(this.group)
+      .subscribe(data => {
+        console.log(data);
       })
   }
 

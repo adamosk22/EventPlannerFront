@@ -83,11 +83,10 @@ export class AddEventsComponent implements OnInit {
     this.calendarService.addEvent(this.event)
       .subscribe(data => {
         console.log(data);
-      })
-      let selectedItems: DropdwownItem[] = this.formGroup.get('selectedItems')?.value
-      let eventName = this.event.name
-      window.location.reload();
-      selectedItems.forEach((s) => {
+        let selectedItems: DropdwownItem[] = this.formGroup.get('selectedItems')?.value
+        let eventName = this.event.name
+        window.location.reload();
+        selectedItems.forEach((s) => {
         let category:Category = { name: s.item_text, eventName };
         category.name = s.item_text;
         this.groupService.addCategoryToEvent(category)
@@ -95,6 +94,8 @@ export class AddEventsComponent implements OnInit {
           console.log(data);
         })
       })
+      })
+      
   }
 
   onItemSelect(item: any) {
