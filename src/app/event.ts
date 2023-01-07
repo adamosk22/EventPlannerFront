@@ -8,6 +8,7 @@ export class Event{
     company?:string
     id?:number
     peopleInterested?:number
+    categories?:string
 
     public constructor(init?: Partial<Event>) {
         Object.assign(this, init);

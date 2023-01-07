@@ -273,7 +273,8 @@ export class CalendarComponent {
       });
       this.viewActivities = this.activities.filter((event) => event.start >= this.startDate && event.end && event.end <= this.endDate)
       if(this.viewActivities.length==0){
-        this.addEvent();
+        if(this.activities.length == 0)
+          this.addEvent();
         this.viewActivities = this.activities;
       }
       this.cdr.detectChanges();
