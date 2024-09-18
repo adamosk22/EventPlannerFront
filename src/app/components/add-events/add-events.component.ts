@@ -5,7 +5,7 @@ import { Event } from 'src/app/event';
 import { IDropdownSettings } from 'ng-multiselect-dropdown';
 import { Category } from 'src/app/category';
 import { GroupService } from 'src/app/group.service';
-import { Observable } from 'rxjs';
+import { forkJoin, Observable } from 'rxjs';
 import { NgbDropdownItem } from '@ng-bootstrap/ng-bootstrap';
 import { Activity } from 'src/app/activity';
 
@@ -79,23 +79,25 @@ export class AddEventsComponent implements OnInit {
 
   addEvent() {
     this.event = new Event(this.formGroup.value);
-    this.event.userEmail = sessionStorage.getItem("email")
+    this.event.userEmail = sessionStorage.getItem("email");
+  
     this.calendarService.addEvent(this.event)
       .subscribe(data => {
         console.log(data);
-        let selectedItems: DropdwownItem[] = this.formGroup.get('selectedItems')?.value
-        let eventName = this.event.name
-        window.location.reload();
-        selectedItems.forEach((s) => {
-        let category:Category = { name: s.item_text, eventName };
-        category.name = s.item_text;
-        this.groupService.addCategoryToEvent(category)
-        .subscribe(data => {
-          console.log(data);
-        })
-      })
-      })
-      
+  
+        let selectedItems: DropdwownItem[] = this.formGroup.get('selectedItems')?.value;
+        let eventName = this.event.name;
+  
+        let categoryRequests = selectedItems.map((s) => {
+          let category: Category = { name: s.item_text, eventName };
+          return this.groupService.addCategoryToEvent(category);
+        });
+  
+        forkJoin(categoryRequests).subscribe(results => {
+          console.log(results);
+          window.location.reload(); 
+        });
+      });
   }
 
   onItemSelect(item: any) {

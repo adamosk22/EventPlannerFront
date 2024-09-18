@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { IDropdownSettings } from 'ng-multiselect-dropdown';
+import { forkJoin } from 'rxjs';
 import { Category } from 'src/app/category';
 import { Group } from 'src/app/group';
 import { GroupService } from 'src/app/group.service';
@@ -62,19 +63,22 @@ export class GroupsComponent implements OnInit {
     this.group = new Group(this.formGroup.value);
     this.group.userEmail = sessionStorage.getItem("email");
     this.groupService.addGroup(this.group)
-      .subscribe(data => {
-        console.log(data);
-        let selectedItems: DropdwownItem[] = this.formGroup.get('selectedItems')?.value
-        let groupName = this.group.name
-        window.location.reload();
-        selectedItems.forEach((s) => {
-        let category:Category = { name: s.item_text, groupName };
-        this.groupService.addCategoryToGroup(category)
-        .subscribe(data => {
-          console.log(data);
-        })
-      })
-      })
+    .subscribe(data => {
+      console.log(data);
+
+      let selectedItems: DropdwownItem[] = this.formGroup.get('selectedItems')?.value;
+      let groupName = this.group.name;
+
+      let categoryRequests = selectedItems.map((s) => {
+        let category: Category = { name: s.item_text, groupName };
+        return this.groupService.addCategoryToGroup(category);
+      });
+
+      forkJoin(categoryRequests).subscribe(results => {
+        console.log(results);
+        window.location.reload(); 
+      });
+    });
   }
 
   joinGroup(){
